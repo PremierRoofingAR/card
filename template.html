@@ -174,6 +174,10 @@ html{background:#0b3a8a}
 .over:before{content:"";position:absolute;left:12%;right:12%;top:0;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#E9B949,transparent)}
 .wrap{padding-block:0}
 .vid iframe{position:static;display:block;width:100%;height:100%;border:0}
+
+.vid #ytf{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.vid .cov{position:absolute;inset:0;pointer-events:none;transition:opacity .4s ease;background:#06132A}
+.vid .cov .th{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 </style></head><body>
 <div class="wrap" id="app">
 <div class="banner" id="hero"><video id="hv" autoplay loop muted playsinline preload="auto" aria-label="Premier Roofing logo animation"></video></div>
@@ -230,7 +234,14 @@ $('quick').style.gridTemplateColumns='repeat('+$('quick').children.length+',1fr)
 [[C.estimateUrl,'e','fa-clipboard-check','Request a Free Estimate','Takes about a minute'],[C.financeUrl,'f','fa-hand-holding-dollar','Financing Available',C.financeNote||'Check your options'],[C.reviewUrl,'r','fa-star','Leave a Google Review','It means the world to a local business']].forEach(function(b){if(!b[0])return;
  var a=el('a','b','<span class="bi '+b[1]+'"><i class="fa-solid '+b[2]+'"></i></span><span><b>'+esc(b[3])+'</b><small>'+esc(b[4])+'</small></span><i class="fa-solid fa-chevron-right ar"></i>');a.href=b[0];a.target='_blank';a.rel='noopener';$('btns').appendChild(a);});
 var yid=(String(C.videoUrl||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)||[])[1];
-if(!yid)$('vidwrap').hidden=true;else{var v=$('vid');v.innerHTML='';v.removeAttribute('role');v.removeAttribute('tabindex');v.style.background='#06132A url(https://i.ytimg.com/vi/'+yid+'/hqdefault.jpg) center/cover';var f=document.createElement('iframe');f.style.opacity='0';f.style.transition='opacity .35s ease';f.style.background='transparent';f.onload=function(){setTimeout(function(){f.style.opacity='1';},250);};f.src='https://www.youtube-nocookie.com/embed/'+yid+'?rel=0&modestbranding=1&playsinline=1';f.title='Our roof system';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;v.appendChild(f);}
+if(!yid)$('vidwrap').hidden=true;else{var v=$('vid');v.removeAttribute('role');v.removeAttribute('tabindex');
+ /* Oct 29 (Keith): look like the proposal (clean picture + our play button) but play on ONE tap: the real YouTube player sits underneath,
+    the picture on top lets the tap go straight through to it, then the picture fades away once the video plays */
+ v.innerHTML='<iframe id="ytf" title="Our roof system" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+yid+'?rel=0&modestbranding=1&playsinline=1&controls=1&enablejsapi=1"></iframe><div class="cov" id="cov"><img class="th" alt="" src="https://i.ytimg.com/vi/'+yid+'/maxresdefault.jpg" onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/'+yid+'/hqdefault.jpg\'"><div class="pl"><i class="fa-solid fa-play"></i></div></div>';
+ var cv=$('cov'),gone=function(){cv.style.opacity='0';setTimeout(function(){cv.style.display='none';},400);};
+ window.addEventListener('blur',function(){setTimeout(function(){if(document.activeElement&&document.activeElement.id==='ytf')gone();},0);});
+ window.onYouTubeIframeAPIReady=function(){try{new YT.Player('ytf',{events:{onStateChange:function(e){if(e.data===1||e.data===3)gone();}}});}catch(x){}};
+ var ys=document.createElement('script');ys.src='https://www.youtube.com/iframe_api';document.head.appendChild(ys);}
 (C.brands||[]).forEach(function(b){if(!b.name)return;var d=el('div','br','<div class="w" style="color:'+esc(b.color||'#0A2148')+'">'+esc(b.name)+'</div><div class="s">'+br(b.sub)+'</div>');$('brands').appendChild(d);});
 (C.badges||[]).forEach(function(b,i){if(!b.title)return;$('badges').appendChild(el('div','lic','<i class="fa-solid '+(i?'fa-shield-halved':'fa-certificate')+'"></i><span><b>'+esc(b.title)+'</b><small>'+esc(b.sub)+'</small></span>'));});
 var S=C.showroom||{};$('storeimg').src=S.photo;$('sttl').textContent=S.title;$('saddr').innerHTML=br(S.lines);
