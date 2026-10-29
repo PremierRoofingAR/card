@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Keith Carothers · Premier Roofing</title>
-<meta name="description" content="Keith Carothers, Owner of Premier Roofing & Home Solutions in Cabot, Arkansas. Haag Certified Roof Inspector. AR License #022236.">
+<meta name="description" content="Keith Carothers, Owner of Premier Roofing &amp; Home Solutions in Cabot, Arkansas. Haag Certified Roof Inspector. AR License #022236.">
 <meta name="theme-color" content="#06132A">
 <meta property="og:type" content="profile"><meta property="og:title" content="Keith Carothers Premier&nbsp;Roofing">
 <meta property="og:description" content="Owner · Haag Certified Roof Inspector · Cabot, Arkansas">
@@ -99,7 +99,7 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t1);-webkit-font-smoothi
 .brands{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;padding:0 20px}
 .br{background:#fff;border-radius:16px;padding:16px 12px;text-align:center;color:var(--navy);
   box-shadow:0 12px 28px -16px rgba(0,0,0,.9)}
-.br .w{font-weight:900;font-size:clamp(15px,4.6vw,21px);letter-spacing:-.01em;line-height:1.05}
+.br .w{white-space:nowrap;font-weight:900;font-size:clamp(15px,4.6vw,21px);letter-spacing:-.01em;line-height:1.05}
 .br .s{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5A6B88;margin-top:6px}
 .br.atlas .w{color:#C8102E;letter-spacing:.04em}
 .br.poly .w{color:#0D5AA7;font-weight:800}
@@ -159,89 +159,89 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t1);-webkit-font-smoothi
 .wrap{padding-left:0;padding-right:0}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#fff;color:#0A2148;font-weight:700;font-size:14px;padding:12px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:50}
 a:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+
+.season.halloween{background:linear-gradient(120deg,#120a02,#4a2405 55%,#8a4a0c);border-color:rgba(255,150,40,.4)}
+.season.halloween .k{color:#FFB347}.season.halloween p{color:#F6DCC0}
+.cred[hidden],.lic[hidden]{display:none!important}
 </style></head><body>
-<div class="wrap">
-<div class="banner" id="hero"><video id="hv" src="img/hero-water.mp4" poster="img/hero-water.jpg" autoplay loop muted playsinline preload="auto" aria-label="Premier Roofing logo animation"></video></div>
-
+<div class="wrap" id="app">
+<div class="banner" id="hero"><video id="hv" autoplay loop muted playsinline preload="auto" aria-label="Premier Roofing logo animation"></video></div>
 <div class="id">
-  <div class="ph"><img src="img/keith.jpg" alt="Keith Carothers" width="300" height="300"></div>
-  <h1 class="name">Keith Carothers</h1>
-  <div class="role">Owner</div>
-  <div class="co">Premier Roofing &amp; Home Solutions</div>
-  <div class="creds">
-    <span class="cred"><i class="fa-solid fa-shield-halved"></i>Haag Certified Inspector</span>
-    <span class="cred"><i class="fa-solid fa-id-card"></i>AR Lic #022236</span>
-  </div>
+  <div class="ph"><img id="photo" alt="" width="300" height="300"></div>
+  <h1 class="name" id="nm"></h1>
+  <div class="role" id="ti"></div>
+  <div class="co" id="co"></div>
+  <div class="creds" id="creds"></div>
 </div>
-
-<div class="quick">
-  <a class="q" href="tel:+15015196394"><span class="ic"><i class="fa-solid fa-building"></i></span>Office</a>
-  <a class="q" href="tel:+15012860988"><span class="ic"><i class="fa-solid fa-phone"></i></span>Call Keith</a>
-  <a class="q" href="sms:+15012860988"><span class="ic"><i class="fa-solid fa-comment-dots"></i></span>Text Keith</a>
-  <a class="q" href="mailto:Keith.PremierRoofing@gmail.com"><span class="ic"><i class="fa-solid fa-envelope"></i></span>Email</a>
-</div>
-
+<div class="quick" id="quick"></div>
 <div class="sec">
   <a class="save" href="keith.vcf"><i class="fa-solid fa-address-book"></i>Save to Contacts</a>
-  <div class="btns">
-    <a class="b" href="https://portal.premierroofingideas.com/exec?form=lead" target="_blank" rel="noopener"><span class="bi e"><i class="fa-solid fa-clipboard-check"></i></span><span><b>Request a Free Estimate</b><small>Takes about a minute</small></span><i class="fa-solid fa-chevron-right ar"></i></a>
-    <a class="b" href="https://www.acornfinance.com/pre-qualify/?d=SYYRH&amp;utm_medium=web_pre_qual_banner" target="_blank" rel="noopener"><span class="bi f"><i class="fa-solid fa-hand-holding-dollar"></i></span><span><b>Financing Available</b><small>Check your options with Acorn Finance</small></span><i class="fa-solid fa-chevron-right ar"></i></a>
-    <a class="b" href="https://g.page/r/CZVglbxWXqDFEAE/review" target="_blank" rel="noopener"><span class="bi r"><i class="fa-solid fa-star"></i></span><span><b>Leave a Google Review</b><small>It means the world to a local business</small></span><i class="fa-solid fa-chevron-right ar"></i></a>
-  </div>
+  <div class="btns" id="btns"></div>
 </div>
-
-<div class="h">See Our Roof System</div>
-<div class="vid" id="vid" role="button" tabindex="0" aria-label="Play the roof system video"><img class="th" src="https://i.ytimg.com/vi/xnmFWvx5Kwk/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/xnmFWvx5Kwk/hqdefault.jpg'" alt=""><div class="bg"></div><div class="pl"><i class="fa-solid fa-play"></i></div>
-  </div>
-
+<div id="vidwrap"><div class="h">See Our Roof System</div>
+<div class="vid" id="vid" role="button" tabindex="0" aria-label="Play the roof system video"><img class="th" id="vth" alt=""><div class="bg"></div><div class="pl"><i class="fa-solid fa-play"></i></div></div></div>
 <div class="h">Certified &amp; Trusted</div>
-<div class="brands">
-  <div class="br atlas"><div class="w">ATLAS</div><div class="s">Certified<br>Installer</div></div>
-  <div class="br poly"><div class="w">Polyglass</div><div class="s">Certified<br>Installer</div></div>
-  <div class="br nl"><div class="w">NeverLeak</div><div class="s">Certified<br>Installer</div></div>
-  <div class="br haag"><div class="w ca">THE CATCH-ALL</div><div class="s">Proud<br>Supporter</div></div>
-</div>
-<div class="lic"><i class="fa-solid fa-certificate"></i><span><b>Arkansas Licensed Contractor</b><small>License #022236</small></span></div>
-<div class="lic"><i class="fa-solid fa-shield-halved"></i><span><b>Haag Certified Roof Inspector</b><small>Haag Engineering</small></span></div>
-
+<div class="brands" id="brands"></div>
+<div id="badges"></div>
 <div class="h">Visit Our Showroom</div>
-<div class="store"><img src="img/store.jpg" alt="Premier Roofing showroom in Cabot" loading="lazy">
-  <div class="in"><b>Premier Roofing Showroom</b>
-  <p>1902 S. Pine St., Suite D<br>Cabot, Arkansas 72023 · Call for an appointment</p>
-  <div class="row"><a class="pill g" id="dir" href="https://www.google.com/maps/search/?api=1&amp;query=Premier+Roofing+1902+S+Pine+St+Suite+D+Cabot+AR+72023" target="_blank" rel="noopener"><i class="fa-solid fa-location-arrow"></i>Directions</a><a class="pill" href="tel:+15015196394"><i class="fa-solid fa-calendar-check"></i>Book a Visit</a></div></div></div>
-
+<div class="store"><img id="storeimg" alt="Premier Roofing showroom" loading="lazy">
+  <div class="in"><b id="sttl"></b><p id="saddr"></p>
+  <div class="row"><a class="pill g" id="dir" target="_blank" rel="noopener"><i class="fa-solid fa-location-arrow"></i>Directions</a><a class="pill" id="book"><i class="fa-solid fa-calendar-check"></i>Book a Visit</a></div></div></div>
 <div class="h" id="sh" hidden>From Our Family</div>
-<div class="season" id="sb" hidden><img id="si" src="" alt=""><div class="tx"><span class="k" id="sk"></span><b id="st"></b><p id="sp"></p></div></div>
-
+<div class="season" id="sb" hidden><img id="si" alt=""><div class="tx"><span class="k" id="sk"></span><b id="st"></b><p id="sp"></p></div></div>
 <div class="h">Share This Card</div>
 <div class="share"><div class="qr" id="qr"></div>
-  <div><b>Scan to save Keith</b><p>Hold your phone up to someone else's camera to share this card.</p>
+  <div><b id="scan"></b><p>Hold your phone up to someone else's camera to share this card.</p>
   <a class="pill" href="#" id="send"><i class="fa-solid fa-arrow-up-from-bracket"></i>Send this card</a></div></div>
-<div class="share2"><a class="save" href="keith.vcf"><i class="fa-solid fa-user-plus"></i>Save Keith to My Phone</a></div>
-
-<a class="web" href="https://www.cabotroofers.com" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>www.CabotRoofers.com</a>
-<div class="foot">Quality · Service · Integrity<span class="d">Serving Cabot and Central Arkansas</span></div>
+<div class="share2"><a class="save" href="keith.vcf" id="save2"><i class="fa-solid fa-user-plus"></i></a></div>
+<a class="web" id="web" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i><span></span></a>
+<div class="foot"><span id="tag"></span><span class="d" id="served"></span></div>
 </div>
 <script src="qrcode.min.js"></script>
 <script>
-var URL_='https://card.premierroofingideas.com/';
-new QRCode(document.getElementById('qr'),{text:URL_,width:224,height:224,colorDark:'#0A2148',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-if(/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent))document.getElementById('dir').href='https://maps.apple.com/?q=Premier+Roofing&address=1902+S+Pine+St+Suite+D,+Cabot,+AR+72023';
-function toast(t){var d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2600);}
-document.getElementById('send').onclick=function(e){e.preventDefault();
- var data={title:'Keith Carothers · Premier Roofing',text:'Keith Carothers, Premier Roofing - Cabot, AR',url:URL_};
+var C={"url":"https://card.premierroofingideas.com/","name":"Keith Carothers","first":"Keith","title":"Owner","company":"Premier Roofing & Home Solutions","brandShort":"Premier Roofing","photo":"img/keith.jpg","creds":[{"icon":"fa-shield-halved","text":"Haag Certified Inspector"},{"icon":"fa-id-card","text":"AR Lic #022236"}],"office":"(501) 519-6394","cell":"(501) 286-0988","email":"Keith.PremierRoofing@gmail.com","website":"https://www.cabotroofers.com","estimateUrl":"https://portal.premierroofingideas.com/exec?form=lead","financeUrl":"https://www.acornfinance.com/pre-qualify/?d=SYYRH&utm_medium=web_pre_qual_banner","financeNote":"Check your options with Acorn Finance","reviewUrl":"https://g.page/r/CZVglbxWXqDFEAE/review","videoUrl":"https://youtu.be/xnmFWvx5Kwk","brands":[{"name":"ATLAS","sub":"Certified\nInstaller","color":"#C8102E"},{"name":"Polyglass","sub":"Certified\nInstaller","color":"#0D5AA7"},{"name":"NeverLeak","sub":"Certified\nInstaller","color":"#0A2148"},{"name":"THE CATCH-ALL","sub":"Proud\nSupporter","color":"#C8102E"}],"badges":[{"title":"Arkansas Licensed Contractor","sub":"License #022236"},{"title":"Haag Certified Roof Inspector","sub":"Haag Engineering"}],"showroom":{"title":"Premier Roofing Showroom","lines":"1902 S. Pine St., Suite D\nCabot, Arkansas 72023 · Call for an appointment","photo":"img/store.jpg","mapQuery":"Premier Roofing, 1902 S Pine St Suite D, Cabot, AR 72023"},"addr":{"street":"1902 S. Pine St.","suite":"Suite D","city":"Cabot","state":"AR","zip":"72023"},"vcNote":"Haag Certified Roof Inspector. Arkansas Contractor License #022236. Atlas, Polyglass and NeverLeak certified. Showroom by appointment.","tagline":"Quality · Service · Integrity","served":"Serving Cabot and Central Arkansas","desc":"Keith Carothers, Owner of Premier Roofing & Home Solutions in Cabot, Arkansas. Haag Certified Roof Inspector. AR License #022236.","ogDesc":"Owner · Haag Certified Roof Inspector · Cabot, Arkansas","shareLine":"Haag Certified Roof Inspector · Cabot, AR","hero":{"video":"img/hero-water.mp4","poster":"img/hero-water.jpg","xmasVideo":"img/hero-xmas.mp4","xmasPoster":"img/hero-xmas.jpg"},"xmasHero":true,"holidays":[{"id":"halloween","on":true,"label":"Halloween","from":"10-15","to":"10-31","title":"Happy Halloween!","text":"From our family to yours.","img":"","theme":"halloween"},{"id":"thanks","on":true,"label":"Thanksgiving","from":"11-01","to":"11-15","title":"Happy Thanksgiving!","text":"Thankful for every customer we protect with a Premier Roof System.","img":"img/m-thanks.png","theme":""},{"id":"pilgrim","on":true,"label":"Thanksgiving","from":"11-16","to":"11-30","title":"Happy Thanksgiving!","text":"Thankful for every customer we protect with a Premier Roof System.","img":"img/m-pilgrim.png","theme":""},{"id":"xmas","on":false,"label":"Christmas","from":"12-01","to":"12-27","title":"Merry Christmas from Premier!","text":"Warm homes and dry roofs this season.","img":"img/m-xmas.png","theme":"xmas"},{"id":"newyear","on":false,"label":"New Year","from":"12-28","to":"01-10","title":"Happy New Year!","text":"Here's to a great year under a great roof.","img":"","theme":"ny"},{"id":"easter","on":true,"label":"Easter","easter":true,"title":"Happy Easter!","text":"From our family to yours.","img":"img/m-easter.png","theme":"easter"}],"icons":{"fav":"img/favicon.png","i192":"img/keith-icon-192.png","i180":"img/keith-icon-180.png"},"share":"img/share-v2.jpg","vcf":"keith.vcf","websiteLabel":"www.CabotRoofers.com"};
+(function(){
+var $=function(i){return document.getElementById(i);};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function dig(p){return String(p||'').replace(/\D/g,'').replace(/^1?(\d{10})$/,'+1$1');}
+function br(s){return esc(s).replace(/\n/g,'<br>');}
+var URL_=C.url||location.origin+'/';
+var hv=$('hv');hv.poster=C.hero.poster;hv.src=C.hero.video;
+$('photo').src=C.photo;$('photo').alt=C.name;
+$('nm').textContent=C.name;$('ti').textContent=C.title;$('co').textContent=C.company;
+(C.creds||[]).forEach(function(c){if(!c.text)return;var s=el('span','cred','<i class="fa-solid '+esc(c.icon||'fa-shield-halved')+'"></i>'+esc(c.text));$('creds').appendChild(s);});
+var Q=[['tel:'+dig(C.office),'fa-building','Office',C.office],['tel:'+dig(C.cell),'fa-phone','Call '+C.first,C.cell],['sms:'+dig(C.cell),'fa-comment-dots','Text '+C.first,C.cell],['mailto:'+C.email,'fa-envelope','Email',C.email]];
+Q.forEach(function(q){if(!q[3])return;var a=el('a','q','<span class="ic"><i class="fa-solid '+q[1]+'"></i></span>'+esc(q[2]));a.href=q[0];$('quick').appendChild(a);});
+$('quick').style.gridTemplateColumns='repeat('+$('quick').children.length+',1fr)';
+[[C.estimateUrl,'e','fa-clipboard-check','Request a Free Estimate','Takes about a minute'],[C.financeUrl,'f','fa-hand-holding-dollar','Financing Available',C.financeNote||'Check your options'],[C.reviewUrl,'r','fa-star','Leave a Google Review','It means the world to a local business']].forEach(function(b){if(!b[0])return;
+ var a=el('a','b','<span class="bi '+b[1]+'"><i class="fa-solid '+b[2]+'"></i></span><span><b>'+esc(b[3])+'</b><small>'+esc(b[4])+'</small></span><i class="fa-solid fa-chevron-right ar"></i>');a.href=b[0];a.target='_blank';a.rel='noopener';$('btns').appendChild(a);});
+var yid=(String(C.videoUrl||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)||[])[1];
+if(!yid)$('vidwrap').hidden=true;else{var th=$('vth');th.onerror=function(){th.onerror=null;th.src='https://i.ytimg.com/vi/'+yid+'/hqdefault.jpg';};th.src='https://i.ytimg.com/vi/'+yid+'/maxresdefault.jpg';
+ var v=$('vid');var go=function(){if(v.classList.contains('on'))return;v.classList.add('on');var f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+yid+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';f.title='Video';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;v.appendChild(f);};
+ v.onclick=go;v.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};}
+(C.brands||[]).forEach(function(b){if(!b.name)return;var d=el('div','br','<div class="w" style="color:'+esc(b.color||'#0A2148')+'">'+esc(b.name)+'</div><div class="s">'+br(b.sub)+'</div>');$('brands').appendChild(d);});
+(C.badges||[]).forEach(function(b,i){if(!b.title)return;$('badges').appendChild(el('div','lic','<i class="fa-solid '+(i?'fa-shield-halved':'fa-certificate')+'"></i><span><b>'+esc(b.title)+'</b><small>'+esc(b.sub)+'</small></span>'));});
+var S=C.showroom||{};$('storeimg').src=S.photo;$('sttl').textContent=S.title;$('saddr').innerHTML=br(S.lines);
+var aq=encodeURIComponent(String(S.mapQuery||S.lines||'').replace(/\n/g,' '));
+$('dir').href=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)?'https://maps.apple.com/?q='+aq:'https://www.google.com/maps/search/?api=1&query='+aq;
+$('book').href='tel:'+dig(C.office);
+$('scan').textContent='Scan to save '+C.first;$('save2').appendChild(document.createTextNode('Save '+C.first+' to My Phone'));
+var w=$('web');w.href=C.website;w.querySelector('span').textContent=C.websiteLabel||String(C.website||'').replace(/^https?:\/\//,'').replace(/\/$/,'').replace(/^www\./i,'www.');if(!C.website)w.hidden=true;
+$('tag').textContent=C.tagline||'';$('served').textContent=C.served||'';
+new QRCode($('qr'),{text:URL_,width:224,height:224,colorDark:'#0A2148',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+function toast(t){var d=el('div','toast');d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2600);}
+$('send').onclick=function(e){e.preventDefault();var data={title:C.name+' · '+C.company,text:C.name+', '+C.company,url:URL_};
  if(navigator.share){navigator.share(data).catch(function(){});return;}
  if(navigator.clipboard){navigator.clipboard.writeText(URL_).then(function(){toast('Link copied');},function(){toast(URL_);});}else toast(URL_);};
-(function(){var v=document.getElementById('vid');function go(){if(v.classList.contains('on'))return;v.classList.add('on');var f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/xnmFWvx5Kwk?autoplay=1&rel=0&modestbranding=1&playsinline=1';f.title='Premier Roofing roof system video';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;v.appendChild(f);}
- v.onclick=go;v.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};})();
-/* seasons, by today's date */
-(function(){var n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,d=n.getDate();
- function easter(Y){var a=Y%19,b=Math.floor(Y/100),c=Y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,mm=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*mm+114)/31),da=((h+l-7*mm+114)%31)+1;return [mo,da];}
- var E=easter(y),s=null,T='Thankful for every customer we protect with a Premier Roof System.';
- if(m===11)s=[d<=15?'img/m-thanks.png':'img/m-pilgrim.png','','Thanksgiving','Happy Thanksgiving!',T];
- else if(m===E[0]&&d<=E[1])s=['img/m-easter.png','easter','Easter','Happy Easter!','From our family to yours.'];
- if(m===12||(m===1&&d===1)){var v=document.getElementById('hv');v.poster='img/hero-xmas.jpg';v.src='img/hero-xmas.mp4';var p=v.play();if(p&&p.catch)p.catch(function(){});}
- if(s){var sb=document.getElementById('sb');sb.className='season '+s[1];document.getElementById('si').src=s[0];document.getElementById('sk').textContent=s[2];document.getElementById('st').textContent=s[3];document.getElementById('sp').textContent=s[4];sb.hidden=false;document.getElementById('sh').hidden=false;}
+/* holidays, by today's date */
+var n=new Date(),y=n.getFullYear(),md=(n.getMonth()+1)*100+n.getDate();
+function easter(Y){var a=Y%19,b=Math.floor(Y/100),c=Y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,mm=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*mm+114)/31),da=((h+l-7*mm+114)%31)+1;return mo*100+da;}
+function num(s){var m=String(s||'').match(/^(\d{1,2})-(\d{1,2})$/);return m?Number(m[1])*100+Number(m[2]):0;}
+function inR(a,b){return a<=b?(md>=a&&md<=b):(md>=a||md<=b);}
+if(C.xmasHero&&inR(1201,101)){hv.poster=C.hero.xmasPoster;hv.src=C.hero.xmasVideo;var pp=hv.play();if(pp&&pp.catch)pp.catch(function(){});}
+var hit=null;(C.holidays||[]).forEach(function(h){if(hit||!h.on||!h.img)return;var a,b;if(h.easter){var E=easter(y);a=Math.floor(E/100)*100+1;b=E;}else{a=num(h.from);b=num(h.to);}if(a&&b&&inR(a,b))hit=h;});
+if(hit){var sb=$('sb');sb.className='season '+(hit.theme||'');$('si').src=hit.img;$('sk').textContent=hit.label;$('st').textContent=hit.title;$('sp').textContent=hit.text;sb.hidden=false;$('sh').hidden=false;}
 })();
 </script>
 </body></html>
