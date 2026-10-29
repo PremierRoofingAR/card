@@ -83,7 +83,11 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t1);-webkit-font-smoothi
 .vid{position:relative;margin:0 20px;border-radius:20px;overflow:hidden;aspect-ratio:16/9;
   background:linear-gradient(135deg,#123A7A,#071834);border:1px solid var(--glassb);
   box-shadow:0 20px 40px -20px rgba(0,0,0,.9)}
-.vid .bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,19,42,0) 45%,rgba(6,19,42,.85)),url(house.jpg) center 60%/cover}
+.vid{cursor:pointer}
+.vid .th{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vid .bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,19,42,0) 50%,rgba(6,19,42,.88))}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vid.on .bg,.vid.on .pl,.vid.on .cap,.vid.on .th{display:none}
 .vid .pl{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;
   display:grid;place-items:center;background:rgba(255,255,255,.95);color:var(--navy);font-size:24px;padding-left:4px;
   box-shadow:0 0 0 10px rgba(255,255,255,.12)}
@@ -182,8 +186,8 @@ a:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
 </div>
 
 <div class="h">See Our Roof System</div>
-<a class="vid" href="https://youtu.be/xnmFWvx5Kwk" target="_blank" rel="noopener" style="display:block;color:#fff;text-decoration:none"><div class="bg"></div><div class="pl"><i class="fa-solid fa-play"></i></div>
-  <div class="cap"><span><b>How we build your roof</b><small>Layer by layer, start to finish</small></span><span class="yt"><i class="fa-brands fa-youtube"></i> Watch</span></div></a>
+<div class="vid" id="vid" role="button" tabindex="0" aria-label="Play the roof system video"><img class="th" src="https://i.ytimg.com/vi/xnmFWvx5Kwk/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/xnmFWvx5Kwk/hqdefault.jpg'" alt=""><div class="bg"></div><div class="pl"><i class="fa-solid fa-play"></i></div>
+  <div class="cap"><span><b>How we build your roof</b><small>Layer by layer, start to finish</small></span><span class="yt"><i class="fa-solid fa-play"></i> Play</span></div></div>
 
 <div class="h">Certified &amp; Trusted</div>
 <div class="brands">
@@ -222,6 +226,8 @@ document.getElementById('send').onclick=function(e){e.preventDefault();
  var data={title:'Keith Carothers · Premier Roofing',text:'Keith Carothers, Premier Roofing - Cabot, AR',url:URL_};
  if(navigator.share){navigator.share(data).catch(function(){});return;}
  if(navigator.clipboard){navigator.clipboard.writeText(URL_).then(function(){toast('Link copied');},function(){toast(URL_);});}else toast(URL_);};
+(function(){var v=document.getElementById('vid');function go(){if(v.classList.contains('on'))return;v.classList.add('on');var f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/xnmFWvx5Kwk?autoplay=1&rel=0&modestbranding=1&playsinline=1';f.title='Premier Roofing roof system video';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;v.appendChild(f);}
+ v.onclick=go;v.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};})();
 /* seasons, by today's date */
 (function(){var n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,d=n.getDate();
  function easter(Y){var a=Y%19,b=Math.floor(Y/100),c=Y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,mm=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*mm+114)/31),da=((h+l-7*mm+114)%31)+1;return [mo,da];}
