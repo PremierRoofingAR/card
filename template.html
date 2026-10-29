@@ -225,7 +225,7 @@ if(!yid)$('vidwrap').hidden=true;else{var th=$('vth');th.onerror=function(){th.o
 var S=C.showroom||{};$('storeimg').src=S.photo;$('sttl').textContent=S.title;$('saddr').innerHTML=br(S.lines);
 var aq=encodeURIComponent(String(S.mapQuery||S.lines||'').replace(/\n/g,' '));
 $('dir').href=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)?'https://maps.apple.com/?q='+aq:'https://www.google.com/maps/search/?api=1&query='+aq;
-$('book').href='tel:'+dig(C.office);
+var bk=$('book');if(C.bookUrl){bk.href=C.bookUrl;bk.target='_blank';bk.rel='noopener';}else bk.href='tel:'+dig(C.office);
 $('scan').textContent='Scan to save '+C.first;$('save2').appendChild(document.createTextNode('Save '+C.first+' to My Phone'));
 var w=$('web');w.href=C.website;w.querySelector('span').textContent=C.websiteLabel||String(C.website||'').replace(/^https?:\/\//,'').replace(/\/$/,'').replace(/^www\./i,'www.');if(!C.website)w.hidden=true;
 $('tag').textContent=C.tagline||'';$('served').textContent=C.served||'';
