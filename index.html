@@ -96,7 +96,7 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t1);-webkit-font-smoothi
 .vid .yt{font-size:11px;font-weight:700;padding:5px 8px;border-radius:7px;background:rgba(0,0,0,.45);color:#fff}
 
 /* brands */
-.brands{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px}
+.brands{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;padding:0 20px}
 .br{background:#fff;border-radius:16px;padding:16px 12px;text-align:center;color:var(--navy);
   box-shadow:0 12px 28px -16px rgba(0,0,0,.9)}
 .br .w{font-weight:900;font-size:21px;letter-spacing:-.01em;line-height:1.05}
@@ -105,6 +105,9 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t1);-webkit-font-smoothi
 .br.poly .w{color:#0D5AA7;font-weight:800}
 .br.nl .w{color:#0A2148}
 .br.haag .w{color:#0A2148;letter-spacing:.08em}
+.br .w.ca{color:#C8102E;letter-spacing:.01em;white-space:nowrap;font-size:clamp(15px,4.6vw,21px)}
+.br .s.ca2{letter-spacing:.06em}
+.br{display:flex;flex-direction:column;justify-content:center}
 .lic{margin:12px 20px 0;padding:14px 16px;border-radius:16px;border:1px solid var(--line);
   display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,rgba(233,185,73,.10),rgba(233,185,73,.02))}
 .lic i{font-size:22px;color:var(--gold)}
@@ -193,10 +196,10 @@ a:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
 
 <div class="h">Certified &amp; Trusted</div>
 <div class="brands">
-  <div class="br atlas"><div class="w">ATLAS</div><div class="s">Certified Installer</div></div>
-  <div class="br poly"><div class="w">Polyglass</div><div class="s">Certified Installer</div></div>
-  <div class="br nl"><div class="w">NeverLeak</div><div class="s">Certified Installer</div></div>
-  <div class="br haag"><div class="w" style="color:#C8102E;letter-spacing:.02em">The Catch-All</div><div class="s">Professional Supporter &amp; Installer</div></div>
+  <div class="br atlas"><div class="w">ATLAS</div><div class="s">Certified<br>Installer</div></div>
+  <div class="br poly"><div class="w">Polyglass</div><div class="s">Certified<br>Installer</div></div>
+  <div class="br nl"><div class="w">NeverLeak</div><div class="s">Certified<br>Installer</div></div>
+  <div class="br haag"><div class="w ca">THE CATCH-ALL</div><div class="s ca2">Professional Supporter<br>&amp; Installer</div></div>
 </div>
 <div class="lic"><i class="fa-solid fa-certificate"></i><span><b>Arkansas Licensed Contractor</b><small>License #022236</small></span></div>
 <div class="lic"><i class="fa-solid fa-shield-halved"></i><span><b>Haag Certified Roof Inspector</b><small>Haag Engineering</small></span></div>
