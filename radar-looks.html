@@ -1,0 +1,270 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Radar Look Options</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0F2133;--gold:#FCD34D}
+body{margin:0;background:#0F2133;font-family:Inter,"Segoe UI",Arial,sans-serif;color:#fff}
+h1{margin:0;padding:18px 24px 4px;font-size:15px;letter-spacing:2px;color:var(--gold)}
+p.cap{margin:0;padding:0 24px 14px;font-size:15px;font-weight:600;color:#e2e8f0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;padding:0 24px 30px}
+.opt{background:#fff;color:#0F2133;border-radius:22px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.4)}
+.opt h2{margin:0;padding:14px 18px 2px;font-size:20px;font-weight:900}
+.opt .d{padding:0 18px 12px;font-size:14px;font-weight:600;color:#334155;min-height:40px}
+.mapbox{position:relative;height:440px}
+.tlbox{padding:6px 10px 12px}
+</style></head><body>
+<h1>STORM TAB RADAR &middot; LOOK OPTIONS (LIVE NOAA RADAR + FORECAST)</h1>
+<p class="cap">Every option uses the same real radar. Press play or drag the timeline past NOW: the forecast now gets the same clean-up as the live radar. The map button (layers icon) switches white map / satellite on any of them.</p>
+<div class="grid">
+<div class="opt"><h2>1 &middot; Clean, sharp</h2><div class="d">Green and up only, blue / gray gone, live and forecast. Detail kept (small squares show up close).</div><div class="mapbox" id="m1"></div><div class="tlbox" id="t1"></div></div>
+<div class="opt"><h2>2 &middot; Soft TV</h2><div class="d">Same clean-up, then softened into smooth solid areas, like Channel 7.</div><div class="mapbox" id="m2"></div><div class="tlbox" id="t2"></div></div>
+<div class="opt"><h2>3 &middot; Extra soft</h2><div class="d">Smoothest look: big soft rain areas, least detail.</div><div class="mapbox" id="m3"></div><div class="tlbox" id="t3"></div></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var PRW = { init: null, initAt: 0, ok: 0, err: 0, filtered: 0, tainted: 0, maps: 0 };
+var PRW_IEM = 'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/', PRW_OP = 0.85, PRW_FB = 0.75;
+var PRW_CLOUD = 'M9.5 26h14a6 6 0 0 0 .9-11.94A8 8 0 0 0 9.6 15.2 5.4 5.4 0 0 0 9.5 26z';
+function prwKey(code, night){ var c = Number(code) || 0;
+  if (c >= 95) return 'storm'; if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 'snow';
+  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82)) return 'rain'; if (c === 45 || c === 48) return 'fog';
+  if (c === 3) return 'cloudy'; if (c === 1 || c === 2) return night ? 'pcnight' : 'pcday'; if (c === 0) return night ? 'moon' : 'sun'; return 'cloudy'; }
+function prwCond(code, night){ var c = Number(code) || 0;
+  if (c === 0) return night ? 'Clear' : 'Sunny'; if (c === 1) return night ? 'Mostly Clear' : 'Mostly Sunny'; if (c === 2) return 'Partly Cloudy'; if (c === 3) return 'Cloudy';
+  if (c === 45 || c === 48) return 'Fog'; if (c >= 51 && c <= 57) return 'Drizzle'; if (c === 66 || c === 67) return 'Freezing Rain'; if (c >= 61 && c <= 65) return 'Rain';
+  if (c >= 71 && c <= 77) return 'Snow'; if (c >= 80 && c <= 82) return 'Showers'; if (c === 85 || c === 86) return 'Snow Showers'; if (c >= 95) return 'T-Storms'; return 'Cloudy'; }
+function prwIcon(k, cls){
+  var sun = function(cx, cy, r){ var s = '<g stroke="#FCD34D" stroke-width="2.2" stroke-linecap="round">';
+    [0, 45, 90, 135, 180, 225, 270, 315].forEach(function(a){ var R = Math.PI * a / 180; s += '<line x1="' + (cx + Math.cos(R) * (r + 3)).toFixed(2) + '" y1="' + (cy + Math.sin(R) * (r + 3)).toFixed(2) + '" x2="' + (cx + Math.cos(R) * (r + 6)).toFixed(2) + '" y2="' + (cy + Math.sin(R) * (r + 6)).toFixed(2) + '"/>'; });
+    return s + '</g><circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#FCD34D"/>'; };
+  var cloud = function(c){ return '<path d="' + PRW_CLOUD + '" fill="' + (c || '#C3CFDB') + '"/>'; }, b = '';
+  if (k === 'sun') b = sun(16, 16, 7);
+  else if (k === 'moon') b = '<path d="M19 5a11 11 0 1 0 8 17A9 9 0 0 1 19 5z" fill="#E8D9A0"/>';
+  else if (k === 'pcday') b = '<g transform="translate(-3,-4) scale(.85)">' + sun(18, 14, 6) + '</g>' + cloud();
+  else if (k === 'pcnight') b = '<path d="M14 3a8 8 0 1 0 8 11A6.5 6.5 0 0 1 14 3z" fill="#E8D9A0"/>' + cloud();
+  else if (k === 'rain') b = '<g transform="translate(0,-4)">' + cloud() + '</g><g stroke="#4FA3F7" stroke-width="2.4" stroke-linecap="round"><line x1="11" y1="25" x2="9" y2="30"/><line x1="17" y1="25" x2="15" y2="30"/><line x1="23" y1="25" x2="21" y2="30"/></g>';
+  else if (k === 'snow') b = '<g transform="translate(0,-4)">' + cloud() + '</g><g fill="#7FB8F0"><circle cx="10" cy="27" r="2"/><circle cx="16.5" cy="29" r="2"/><circle cx="23" cy="27" r="2"/></g>';
+  else if (k === 'fog') b = '<g transform="translate(0,-5)">' + cloud() + '</g><g stroke="#8EA0B3" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="25" x2="26" y2="25"/><line x1="9" y1="29.5" x2="23" y2="29.5"/></g>';
+  else if (k === 'storm') b = '<g transform="translate(0,-4)">' + cloud('#9AAABB') + '</g><path d="M17 20l-5 7h4l-2 5 7-8h-4l2-4z" fill="#FCD34D" stroke="#B45309" stroke-width=".6"/>';
+  else b = '<path d="' + PRW_CLOUD + '" fill="#8EA0B3" transform="translate(-4,-5) scale(.9)"/>' + cloud();
+  return '<svg class="' + (cls || 'prw-ico') + '" viewBox="0 0 32 32" aria-hidden="true">' + b + '</svg>';
+}
+var PRW_DROP = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1C6 1 1.5 6.5 1.5 9.2A4.5 4.5 0 0 0 10.5 9.2C10.5 6.5 6 1 6 1z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+function prwArrow(deg){ return '<svg viewBox="0 0 16 16" aria-hidden="true" style="transform:rotate(' + Math.round((Number(deg) || 0) + 180) + 'deg)"><path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+function prwDir(d){ var D = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']; return D[Math.round(((Number(d) || 0) % 360) / 22.5) % 16]; }
+var PRW_UI = {
+  play: '<svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z" fill="currentColor"/></svg>',
+  pause: '<svg viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" rx="1" fill="currentColor"/><rect x="12" y="3" width="4" height="14" rx="1" fill="currentColor"/></svg>',
+  plus: '<svg viewBox="0 0 22 22"><path d="M11 4v14M4 11h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  minus: '<svg viewBox="0 0 22 22"><path d="M4 11h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  target: '<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.2" fill="currentColor"/><path d="M11 1.5v3.5M11 17v3.5M1.5 11H5M17 11h3.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  expand: '<svg viewBox="0 0 22 22"><path d="M3.5 8V3.5H8M14 3.5h4.5V8M18.5 14v4.5H14M8 18.5H3.5V14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  shrink: '<svg viewBox="0 0 22 22"><path d="M8 3.5V8H3.5M18.5 8H14V3.5M14 18.5V14h4.5M3.5 14H8v4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  check: '<svg viewBox="0 0 28 28"><path d="M7 14.5l4.5 4.5L21 9.5" fill="none" stroke="#0F2133" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn: '<svg viewBox="0 0 28 28"><path d="M14 7v9" stroke="#0F2133" stroke-width="3.4" stroke-linecap="round"/><circle cx="14" cy="21" r="2" fill="#0F2133"/></svg>',
+  stop: '<svg viewBox="0 0 28 28"><path d="M8 8l12 12M20 8L8 20" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
+  clock: '<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="8.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M11 6.5V11l3 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  shield: '<svg viewBox="0 0 24 24"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M8.2 12.2l2.7 2.7 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  alert: '<svg viewBox="0 0 24 24"><path d="M12 3L2.5 20h19z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 9.5v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1.3" fill="currentColor"/></svg>',
+  pin: '<svg viewBox="0 0 16 16"><path d="M8 1.5a4.8 4.8 0 0 0-4.8 4.8C3.2 10 8 14.5 8 14.5s4.8-4.5 4.8-8.2A4.8 4.8 0 0 0 8 1.5z" fill="#FCD34D"/><circle cx="8" cy="6.3" r="1.8" fill="#0F2133"/></svg>'
+};
+var PRW_CSS = '.prw-ico{width:32px;height:32px;display:block;flex:none}.prw-wrap{position:relative;display:flex;flex-direction:column;background:#fff}.prw-map{position:relative;width:100%;background:#d9dee3;z-index:0;isolation:isolate;overflow:hidden}'
+  + '.prw-map .leaflet-container,.prw-map.leaflet-container{background:#d9dee3;font-family:inherit;cursor:default}.prw-map .leaflet-control-attribution{font-size:10px!important;color:#33475B}.prw-map .leaflet-control-attribution a{color:#1453B0}'
+  + '.prw-ctl{position:absolute;top:12px;right:12px;z-index:800;display:flex;flex-direction:column;gap:8px}.prw-ctl button{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,33,51,.92);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);cursor:pointer;padding:0}.prw-ctl button svg{width:22px;height:22px}.prw-ctl button:hover{background:#18334E;color:#FCD34D}'
+  + '.prw-tag{position:absolute;top:12px;left:12px;z-index:800;height:30px;padding:0 12px;border-radius:15px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);pointer-events:none;white-space:nowrap}.prw-tag.now{background:#15803D}.prw-tag.past{background:#18334E}.prw-tag.future{background:#C2410C}.prw-tag i{width:8px;height:8px;border-radius:50%;background:#fff;display:block}'
+  + '.prw-leg{position:absolute;left:12px;bottom:12px;z-index:800;height:28px;padding:0 10px;border-radius:14px;background:rgba(15,33,51,.92);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#fff;pointer-events:none}.prw-leg span{display:block;width:72px;height:8px;border-radius:4px;background:linear-gradient(90deg,#02fd02,#008e00,#fdf802,#fd9500,#fd0000,#d40000,#f800fd)}'
+  + '.prw-msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:820;max-width:80%;padding:12px 16px;border-radius:12px;background:rgba(15,33,51,.95);color:#fff;font-size:15px;font-weight:700;line-height:1.35;text-align:center;display:none}'
+  + '.prw-rl{transition:opacity .22s linear}.prw-sat{filter:brightness(.62) saturate(.85) contrast(1.05)}.prw-rl img{image-rendering:auto}.prw-pin{position:relative}.prw-pin .p{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:#E67E22;border:3px solid #fff;box-shadow:0 0 0 2px rgba(15,33,51,.6)}.prw-pin .ring{position:absolute;left:-20px;top:-20px;width:40px;height:40px;border-radius:50%;border:3px solid #E67E22;animation:prwPulse 2s ease-out infinite}.prw-pin .lbl{position:absolute;left:14px;top:-12px;padding:2px 8px;border-radius:6px;background:#0F2133;color:#fff;font-weight:800;font-size:13px;line-height:20px;white-space:nowrap}@keyframes prwPulse{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.3);opacity:0}}'
+  + '.prw-cust i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#0F2133;border:3px solid #FCD34D;box-shadow:0 1px 4px rgba(0,0,0,.4)}.prw-tt{font-weight:700;font-size:14px;line-height:1.35;color:#0F2133;padding:8px 10px;border-radius:10px}.prw-tt b{font-weight:900}'
+  + '.prw-tl{flex:none;padding:12px 16px 14px;background:#fff;color:#0F2133;border-top:1px solid #E1E7EE}.prw-tlt{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;height:44px}.prw-play{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#0F2133;color:#fff;border:0;cursor:pointer;padding:0}.prw-play svg{width:20px;height:20px}'
+  + '.prw-lab{font-size:17px;font-weight:800;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prw-sub{font-size:13px;font-weight:700;line-height:18px;color:#33475B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+  + '.prw-chip{height:28px;padding:0 10px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;letter-spacing:.08em;color:#fff;min-width:104px}.prw-chip.now{background:#15803D}.prw-chip.past{background:#3B5878}.prw-chip.future{background:#C2410C}'
+  + '.prw-trk{position:relative;height:34px;margin:8px 4px 0;cursor:pointer;touch-action:none}.prw-rail{position:absolute;left:0;right:0;top:15px;height:4px;border-radius:2px;background:#D5DEE8}.prw-past{position:absolute;left:0;top:15px;height:4px;border-radius:2px 0 0 2px;background:#9FB1C4}.prw-fill{position:absolute;left:0;top:15px;height:4px;border-radius:2px;background:#E67E22}'
+  + '.prw-tick{position:absolute;top:11px;width:2px;height:12px;margin-left:-1px;background:#7D91A6;border-radius:1px}.prw-tick.minor{top:14px;height:6px;opacity:.7}.prw-nowm{position:absolute;top:7px;width:3px;height:20px;margin-left:-1.5px;background:#22C55E;border-radius:2px}'
+  + '.prw-thumb{position:absolute;top:5px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:#fff;border:4px solid #0F2133;box-shadow:0 2px 6px rgba(0,0,0,.35)}.prw-labs{position:relative;height:20px;margin:2px 4px 0}.prw-labs span{position:absolute;transform:translateX(-50%);font-size:13px;font-weight:800;line-height:20px;color:#0F2133;white-space:nowrap}.prw-labs span.n{color:#15803D}.prw-labs span.d{color:#C2410C}';
+function prwStyle(){ if (document.getElementById('prwCss')) return; var s = document.createElement('style'); s.id = 'prwCss'; s.textContent = PRW_CSS; document.head.appendChild(s); }
+function prwUtc(d){ var z = function(n){ return (n < 10 ? '0' : '') + n; }; return d.getUTCFullYear() + z(d.getUTCMonth() + 1) + z(d.getUTCDate()) + z(d.getUTCHours()) + z(d.getUTCMinutes()); }
+var PRW_MRMS = 'https://opengeo.ncep.noaa.gov/geoserver/conus/conus_bref_qcd/ows';
+function prwWmsUrl(time, co, px){                     // NOAA's radar picture for one map square (Web Mercator)
+  var E = 20037508.342789244, s = 2 * E / Math.pow(2, co.z), x0 = -E + co.x * s, y1 = E - co.y * s;
+  return PRW_MRMS + '?service=WMS&request=GetMap&version=1.1.1&layers=conus_bref_qcd&styles=&format=image%2Fpng&transparent=true&srs=EPSG%3A3857&width=' + px + '&height=' + px + '&bbox=' + [x0, y1 - s, x0 + s, y1].join(',') + '&time=' + encodeURIComponent(time);
+}
+function prwMrms(cb){                                  // Oct 31 (Keith: "It is actually pouring on me right now"): NOAA's quality-controlled radar (radar.weather.gov) - bugs, birds and dust taken out by NOAA, every real raindrop kept
+  if (PRW.mr && Date.now() - PRW.mrAt < 4 * 60000) { cb(PRW.mr); return; }
+  var done = false, fin = function(v){ if (done) return; done = true; if (v) { PRW.mr = v; PRW.mrAt = Date.now(); } cb(v); };
+  setTimeout(function(){ fin(null); }, 8000);
+  try { var x = new XMLHttpRequest(); x.open('GET', PRW_MRMS + '?service=WMS&version=1.3.0&request=GetCapabilities&_=' + Math.floor(Date.now() / 120000));
+    x.onload = function(){ if (x.status !== 200) { fin(null); return; } var t = x.responseText || '', i = t.indexOf('name="time"'); if (i < 0) i = t.indexOf("name='time'"); if (i < 0) { fin(null); return; }
+      var a = t.indexOf('>', i) + 1, b = t.indexOf('</', a), out = [];
+      t.slice(a, b).split(',').forEach(function(p){ p = p.trim(); var q = p.split('/');
+        if (q.length === 3) { var st = Date.parse(q[0]), en = Date.parse(q[1]), mm = /PT(?:([0-9]+)H)?(?:([0-9]+)M)?/.exec(q[2]), per = mm ? ((+mm[1] || 0) * 60 + (+mm[2] || 0)) * 6e4 : 0;
+          if (st && en && per) for (var v = en, n = 0; v >= st && n < 60; v -= per, n++) out.push({ t: v, s: new Date(v).toISOString() }); }
+        else { var v1 = Date.parse(q[0]); if (v1) out.push({ t: v1, s: q[0] }); } });
+      out.sort(function(m1, m2){ return m1.t - m2.t; }); fin(out.length ? out : null); };
+    x.onerror = function(){ fin(null); }; x.send(); } catch (e) { fin(null); }
+}
+function prwInit(cb){                                  // when the newest HRRR forecast run started (the forecast frames are named by it)
+  if (PRW.init && Date.now() - PRW.initAt < 10 * 60000) { cb(PRW.init); return; }
+  var done = false, fin = function(v){ if (done) return; done = true; PRW.init = v; PRW.initAt = Date.now(); cb(v); };
+  var fb = function(){ var d = new Date(); d.setUTCMinutes(0, 0, 0); d.setUTCHours(d.getUTCHours() - 2); fin({ date: d, code: '0', live: false }); };
+  setTimeout(fb, 6000);
+  try { fetch('https://mesonet.agron.iastate.edu/data/gis/images/4326/hrrr/refd_1080.json', { cache: 'no-store' }).then(function(r){ return r.json(); })
+    .then(function(j){ var d = new Date(j && j.model_init_utc); if (isNaN(d.getTime())) fb(); else fin({ date: d, code: prwUtc(d), live: true }); }).catch(fb); } catch (e) { fb(); }
+}
+function prwFrames(init, mr){
+  var now = Date.now(), base = new Date(now), fr = [], m, f; base.setSeconds(0, 0); base.setMinutes(base.getMinutes() - base.getMinutes() % 5);
+  if (mr && mr.length && now - mr[mr.length - 1].t < 40 * 6e4) {   // NOAA's cleaned radar: one picture for each 5 minutes back, the newest is NOW
+    var last = mr[mr.length - 1].t, seen = {};
+    for (m = 50; m >= 0; m -= 5) { var tg = last - m * 6e4, best = null; for (var k = mr.length - 1; k >= 0; k--) if (mr[k].t <= tg + 3e4) { best = mr[k]; break; }
+      if (!best || last - best.t > (m + 10) * 6e4 || seen[best.s]) continue; seen[best.s] = 1;
+      fr.push(m ? { kind: 'past', t: new Date(best.t), ago: Math.max(1, Math.round((now - best.t) / 6e4)), wms: best.s } : { kind: 'now', t: new Date(best.t), wms: best.s }); }
+  } else {
+  for (m = 50; m >= 5; m -= 5) fr.push({ kind: 'past', t: new Date(base.getTime() - m * 6e4), ago: m, url: PRW_IEM + 'nexrad-n0q-900913-m' + (m < 10 ? '0' : '') + m + 'm/{z}/{x}/{y}.png' });
+  fr.push({ kind: 'now', t: new Date(base.getTime()), url: PRW_IEM + 'nexrad-n0q-900913/{z}/{x}/{y}.png' }); }
+  var end = now + 18 * 36e5;
+  for (f = 15; f <= 1080; f += 15) {
+    var t = new Date(init.date.getTime() + f * 6e4), ah = t.getTime() - now;
+    if (ah <= 5 * 6e4 || t.getTime() > end) continue;
+    if (ah > 2 * 36e5 && ah <= 6 * 36e5 && f % 30) continue;
+    if (ah > 6 * 36e5 && f % 60) continue;
+    fr.push({ kind: 'future', t: t, f: f, url: PRW_IEM + 'hrrr::REFD-F' + ('000' + f).slice(-4) + '-' + init.code + '/{z}/{x}/{y}.png' });
+  }
+  return fr;
+}
+function prwDeclutter(ctx){                              // weak echoes (< ~20 dBZ: blue / gray speckle) taken out - rain (green and up) stays
+  var id = ctx.getImageData(0, 0, 256, 256), d = id.data;
+  for (var i = 0; i < d.length; i += 4) { if (!d[i + 3]) continue;
+    var r = d[i], g = d[i + 1], b = d[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+    var blue = b > g + 15 && b > r + 30 && r < 110, cyan = r < 120 && g > 140 && b > 140 && Math.abs(g - b) < 60, gray = mx - mn < 30;   // Oct 31 (Keith: never seen blue and gray around the green): the very light echoes TV radars hide - sprinkles that mostly never reach the ground
+    if (blue || cyan || gray) d[i + 3] = 0; }
+    ctx.putImageData(id, 0, 0); PRW.filtered++;
+}
+function prwImg(url, cors, ok, bad){ var img = new Image(); if (cors) img.crossOrigin = 'anonymous';
+  img.onload = function(){ ok(img, cors); }; img.onerror = function(){ if (cors) prwImg(url, false, ok, bad); else bad(); }; img.src = url; }
+function prwLayerClass(LF){
+  if (LF.__prwRadar) return LF.__prwRadar;
+  LF.__prwRadar = LF.GridLayer.extend({
+    initialize: function(tpl, opts){ this._tpl = tpl; LF.GridLayer.prototype.initialize.call(this, opts); },
+    createTile: function(co, done){
+      var c = document.createElement('canvas'); c.width = c.height = 256;
+      var sm = this.options.smooth || 0;
+      prwImg(typeof this._tpl === 'function' ? this._tpl(co) : LF.Util.template(this._tpl, { z: co.z, x: co.x, y: co.y }), true, function(img, cors){
+        var ctx = c.getContext('2d', { willReadFrequently: true }); ctx.imageSmoothingEnabled = true; try { ctx.imageSmoothingQuality = 'high'; } catch (e) {} ctx.drawImage(img, 0, 0, 256, 256);
+        if (cors) { try { prwDeclutter(ctx); } catch (e) { PRW.tainted++; c.style.opacity = PRW_FB / PRW_OP; } } else { PRW.tainted++; c.style.opacity = PRW_FB / PRW_OP; }
+        if (sm && cors) { try { var s2 = document.createElement('canvas'); s2.width = s2.height = sm; var c2 = s2.getContext('2d'); c2.imageSmoothingEnabled = true; try { c2.imageSmoothingQuality = 'high'; } catch (e) {}   // Nov 1 (Keith: TV-station look): shrink then stretch - soft, solid rain areas, no squares or specks
+          c2.drawImage(c, 0, 0, sm, sm); ctx.clearRect(0, 0, 256, 256); ctx.drawImage(s2, 0, 0, 256, 256); } catch (e) {} }
+        PRW.ok++; done(null, c); }, function(){ PRW.err++; done(null, c); });
+      return c;
+    }
+  });
+  return LF.__prwRadar;
+}
+// o: { mapEl, tlEl, center: [lat, lon], zoom, label, t: translate(s), loc: 'en-US', onFs: function(on) }
+function prwRadar(LF, o){
+  var T = o.t || function(s){ return s; }, loc = o.loc || 'en-US', mapEl = o.mapEl, tl = o.tlEl;
+  prwStyle();
+  if (!LF || !LF.map) { mapEl.innerHTML = '<div class="prw-msg" style="display:block">' + T('Radar could not load.') + '</div>'; return null; }
+  var RL = prwLayerClass(LF), zoom0 = o.zoom || 7, center = o.center;
+  var map = LF.map(mapEl, { center: center, zoom: zoom0, minZoom: 4, maxZoom: 11, zoomControl: false, attributionControl: true, worldCopyJump: false,
+    dragging: false, touchZoom: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false, inertia: false });   // the map never moves with the mouse or a finger - only the buttons
+  PRW.maps++;
+  map.attributionControl.setPrefix(false);
+  map.createPane('prwRadar'); map.getPane('prwRadar').style.zIndex = 350; map.getPane('prwRadar').style.pointerEvents = 'none';
+  map.createPane('prwLabels'); map.getPane('prwLabels').style.zIndex = 450; map.getPane('prwLabels').style.pointerEvents = 'none';
+  var EA = 'https://server.arcgisonline.com/ArcGIS/rest/services/', ATT = 'Map: Esri &middot; Radar: NOAA / NWS &middot; HRRR', sty = 'light';   // Oct 31 (Keith likes both the white map and the TV station's satellite map)
+  try { sty = localStorage.getItem('prw_map') === 'sat' ? 'sat' : 'light'; } catch (e) {}
+  var BM = { light: [LF.tileLayer(EA + 'Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, zIndex: 1, attribution: ATT }), LF.tileLayer(EA + 'Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, pane: 'prwLabels' })],
+    sat: [LF.tileLayer(EA + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, zIndex: 1, className: 'prw-sat', attribution: ATT }), LF.tileLayer(EA + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, pane: 'prwLabels' })] };
+  var setSty = function(k){ BM.light.concat(BM.sat).forEach(function(l){ if (map.hasLayer(l)) map.removeLayer(l); }); BM[k].forEach(function(l){ l.addTo(map); }); sty = k; try { localStorage.setItem('prw_map', k); } catch (e) {} mapEl.classList.toggle('prw-dark', k === 'sat'); };
+  setSty(sty);
+  var pin = LF.marker(center, { icon: LF.divIcon({ className: 'prw-pin', html: '<div class="ring"></div><div class="p"></div><div class="lbl"></div>', iconSize: [0, 0] }), keyboard: false, interactive: false, zIndexOffset: 1000 }).addTo(map);
+  var setLbl = function(s){ var e = pin.getElement && pin.getElement(); if (e) { var l = e.querySelector('.lbl'); if (l) l.textContent = s; } };
+  setLbl(o.label || 'Cabot');
+  var mk = function(cls, html){ var e = document.createElement('div'); e.className = cls; e.innerHTML = html; mapEl.appendChild(e); LF.DomEvent.disableClickPropagation(e); LF.DomEvent.disableScrollPropagation(e); return e; };
+  var tag = mk('prw-tag now', '<i></i><span>' + T('LIVE RADAR') + '</span>'), leg = mk('prw-leg', T('Light') + '<span></span>' + T('Heavy')), msg = mk('prw-msg', '');
+  var ctl = mk('prw-ctl', '<button type="button" title="' + T('Zoom in') + '" data-a="in">' + PRW_UI.plus + '</button><button type="button" title="' + T('Zoom out') + '" data-a="out">' + PRW_UI.minus + '</button>'
+    + '<button type="button" title="' + T('Center on') + ' ' + (o.label || 'Cabot') + '" data-a="home">' + PRW_UI.target + '</button><button type="button" title="' + T('Full screen') + '" data-a="fs">' + PRW_UI.expand + '</button><button type="button" title="' + T('Map style') + '" data-a="map"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 16 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></button>');
+  var fs = false, fsBtn = ctl.querySelector('[data-a="fs"]');
+  var setFs = function(v){ fs = v; fsBtn.innerHTML = fs ? PRW_UI.shrink : PRW_UI.expand; fsBtn.title = T(fs ? 'Exit full screen' : 'Full screen');
+    if (o.onFs) o.onFs(fs); setTimeout(function(){ map.invalidateSize(); }, 30); setTimeout(function(){ map.invalidateSize(); if (S0.ready) scale(); }, 360); };
+  ctl.addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('button') : null; if (!b) return; var a = b.getAttribute('data-a');
+    if (a === 'in') map.zoomIn(); else if (a === 'out') map.zoomOut(); else if (a === 'home') map.setView(center, zoom0); else if (a === 'fs') setFs(!fs); else if (a === 'map') setSty(sty === 'sat' ? 'light' : 'sat'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && fs) setFs(false); });
+
+  tl.className = 'prw-tl';
+  tl.innerHTML = '<div class="prw-tlt"><button type="button" class="prw-play" title="' + T('Play') + ' / ' + T('Pause') + '">' + PRW_UI.play + '</button>'
+    + '<div style="min-width:0"><div class="prw-lab">' + T('Loading radar...') + '</div><div class="prw-sub">' + T('Past 50 min') + ' &middot; ' + T('Now') + ' &middot; ' + T('Next 18 hours') + '</div></div><div class="prw-chip now">' + T('NOW') + '</div></div>'
+    + '<div class="prw-trk"><div class="prw-rail"></div><div class="prw-past"></div><div class="prw-fill"></div><div class="prw-marks"></div><div class="prw-nowm"></div><div class="prw-thumb"></div></div><div class="prw-labs"></div>';
+  var $ = function(s){ return tl.querySelector(s); }, playBtn = $('.prw-play'), lab = $('.prw-lab'), sub = $('.prw-sub'), chip = $('.prw-chip'), track = $('.prw-trk'), thumb = $('.prw-thumb'), fill = $('.prw-fill');
+  var S0 = { frames: [], cur: 0, nowIdx: 0, playing: false, timer: null, visible: false, ready: false, gen: 0, at: 0 }, PW = 0.1;
+  var hr = function(d){ var h = d.getHours(); return (h % 12 || 12) + (h < 12 ? 'a' : 'p'); };
+  var when = function(d){ return d.toLocaleDateString(loc, { weekday: 'short' }) + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+  var pos = function(t){ var F = S0.frames, st = F[0].t.getTime(), nt = F[S0.nowIdx].t.getTime(), en = Math.max(F[F.length - 1].t.getTime(), nt + 1); t = t instanceof Date ? t.getTime() : t;
+    return t <= nt ? PW * (t - st) / Math.max(1, nt - st) : PW + (1 - PW) * (t - nt) / Math.max(1, en - nt); };
+  function scale(){
+    var F = S0.frames; if (!F.length) return;
+    var nt = F[S0.nowIdx].t.getTime(), en = F[F.length - 1].t.getTime(), marks = '', labels = '<span class="n" style="left:' + PW * 100 + '%">' + T('NOW') + '</span>';
+    $('.prw-past').style.width = PW * 100 + '%'; $('.prw-nowm').style.left = PW * 100 + '%';
+    var w = track.getBoundingClientRect().width || 600, gap = 50 / w, lastX = PW, h = new Date(nt); h.setMinutes(0, 0, 0); h.setTime(h.getTime() + 36e5);
+    for (var t = h.getTime(); t <= en; t += 36e5) { var x = pos(t), d = new Date(t), hh = d.getHours(), major = (w > 900 ? hh % 2 === 0 : hh % 3 === 0) || hh === 0;
+      marks += '<div class="prw-tick' + (major ? '' : ' minor') + '" style="left:' + x * 100 + '%"></div>';
+      if (major && x - lastX > gap && x < 0.97) { labels += hh === 0 ? '<span class="d" style="left:' + x * 100 + '%">' + d.toLocaleDateString(loc, { weekday: 'short' }) + '</span>' : '<span style="left:' + x * 100 + '%">' + hr(d) + '</span>'; lastX = x; } }
+    $('.prw-marks').innerHTML = marks; $('.prw-labs').innerHTML = labels;
+  }
+  function ensure(i){ var f = S0.frames[i]; if (!f || f.layer) return;
+    var lo = { opacity: 0, zIndex: 10 + i, className: 'prw-rl', pane: 'prwRadar', keepBuffer: 1, updateWhenZooming: false, maxNativeZoom: 10, maxZoom: 11, smooth: o.smooth == null ? 72 : o.smooth };
+    if (f.wms) f.layer = new RL(function(co){ return prwWmsUrl(f.wms, co, 128); }, lo);   // NOAA cleaned radar: a small picture stretched smoothly, the faint blue / gray sprinkles hidden like a TV radar
+    else if (f.kind === 'future') f.layer = new RL(f.url, lo);          // the forecast gets the same clean-up and smoothing as the live radar - one look all the way through
+    else f.layer = new RL(f.url, lo);                                   // backup radar only: weak specks filtered
+    if (!(f.layer instanceof RL)) { f.layer.on('tileload', function(){ PRW.ok++; }); f.layer.on('tileerror', function(){ PRW.err++; }); }
+    f.layer.addTo(map); }
+  function show(i){
+    var F = S0.frames; if (!F.length) return;
+    i = Math.max(0, Math.min(F.length - 1, i)); S0.cur = i;
+    ensure(i); ensure(i + 1); ensure(i + 2);
+    F.forEach(function(f, k){ if (f.layer) f.layer.setOpacity(k === i ? PRW_OP : 0); });
+    var f = F[i], x = pos(f.t) * 100; thumb.style.left = x + '%'; fill.style.width = x + '%';
+    chip.className = 'prw-chip ' + f.kind; tag.className = 'prw-tag ' + f.kind; lab.textContent = when(f.t);
+    if (f.kind === 'now') { sub.textContent = T('Live radar') + ' · NWS NEXRAD'; chip.textContent = T('NOW'); tag.lastChild.textContent = T('LIVE RADAR'); }
+    else if (f.kind === 'past') { sub.textContent = f.ago + ' ' + T('min ago') + ' · NWS NEXRAD'; chip.textContent = T('PAST'); tag.lastChild.textContent = T('PAST') + ' · ' + f.ago + ' ' + T('MIN AGO'); }
+    else { var ah = (f.t - Date.now()) / 36e5; sub.textContent = (ah < 1 ? Math.max(1, Math.round(ah * 60)) + ' min' : Math.round(ah) + ' hr') + ' ' + T('ahead') + ' · ' + (o.short ? 'HRRR' : T('HRRR model')); chip.textContent = T('FORECAST'); tag.lastChild.textContent = T('FORECAST'); }
+  }
+  var delay = function(i){ return i === S0.frames.length - 1 ? 1500 : S0.frames[i].kind === 'now' ? 1100 : 420; };
+  function tick(){ if (!S0.playing) return; var n = S0.cur >= S0.frames.length - 1 ? 0 : S0.cur + 1; show(n); S0.timer = setTimeout(tick, delay(n)); }
+  function play(){ if (!S0.ready || S0.playing) return; S0.playing = true; playBtn.innerHTML = PRW_UI.pause; S0.timer = setTimeout(tick, delay(S0.cur)); }
+  function pause(){ S0.playing = false; clearTimeout(S0.timer); playBtn.innerHTML = PRW_UI.play; }
+  playBtn.addEventListener('click', function(){ if (S0.playing) pause(); else play(); });
+  var idxAt = function(cx){ var r = track.getBoundingClientRect(), x = (cx - r.left) / r.width, best = 0, bd = 9; S0.frames.forEach(function(f, k){ var d = Math.abs(pos(f.t) - x); if (d < bd) { bd = d; best = k; } }); return best; };
+  var drag = false;
+  track.addEventListener('pointerdown', function(e){ if (!S0.ready) return; drag = true; try { track.setPointerCapture(e.pointerId); } catch (er) {} pause(); show(idxAt(e.clientX)); e.stopPropagation(); });
+  track.addEventListener('pointermove', function(e){ if (drag) show(idxAt(e.clientX)); });
+  ['pointerup', 'pointercancel'].forEach(function(t){ track.addEventListener(t, function(){ drag = false; }); });
+  setTimeout(function(){ if (PRW.ok === 0 && PRW.err > 0) { msg.textContent = T('Radar images could not be reached right now. Check the internet connection.'); msg.style.display = 'block'; } }, 9000);
+  function load(){                                      // (re)builds the frames - on open and every 10 minutes, so NOW stays now
+    var gen = ++S0.gen, was = S0.playing; pause();
+    prwInit(function(init){ if (gen !== S0.gen) return; prwMrms(function(mr){ if (gen !== S0.gen) return;
+      S0.frames.forEach(function(f){ if (f.layer) map.removeLayer(f.layer); });
+      S0.frames = prwFrames(init, mr); S0.nowIdx = 0; S0.frames.forEach(function(f, k){ if (f.kind === 'now') S0.nowIdx = k; }); S0.cur = S0.nowIdx; S0.at = Date.now();
+      scale();
+      var order = S0.frames.map(function(f, k){ return k; }).sort(function(a, b){ return Math.abs(a - S0.nowIdx) - Math.abs(b - S0.nowIdx); }), qi = 0;
+      ensure(S0.nowIdx);
+      (function feed(){ if (gen !== S0.gen) return; for (var n = 0; n < 4 && qi < order.length; n++, qi++) ensure(order[qi]); if (qi < order.length) setTimeout(feed, 250); })();
+      S0.ready = true; show(S0.nowIdx);
+      if (S0.visible || was) setTimeout(play, 1500); }); });
+  }
+  load();
+  var rz = null; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (S0.ready) scale(); }, 150); });
+  return {
+    map: map, LF: LF,
+    show: function(){ S0.visible = true; map.invalidateSize(); if (Date.now() - S0.at > 10 * 60000) load(); else if (S0.ready) { scale(); setTimeout(play, 800); } },
+    hide: function(){ S0.visible = false; pause(); if (fs) setFs(false); },
+    redraw: function(){ map.invalidateSize(); if (S0.ready) scale(); },
+    refresh: function(){ if (Date.now() - S0.at > 10 * 60000) load(); },
+    rain: function(on){ map.getPane('prwRadar').style.display = on ? '' : 'none'; leg.style.display = on ? '' : 'none'; },
+    place: function(c, label, z){ center = c; if (z) zoom0 = z; pin.setLatLng(c); setLbl(label || ''); ctl.querySelector('[data-a="home"]').title = T('Center on') + ' ' + (label || ''); map.setView(c, zoom0); },
+    playing: function(){ return S0.playing; }, state: S0
+  };
+}
+(function(){ var C=[34.9745,-92.0165], S=[0,72,40];
+  [1,2,3].forEach(function(n,i){ var r=prwRadar(L,{mapEl:document.getElementById('m'+n),tlEl:document.getElementById('t'+n),center:C,zoom:7,label:'Cabot',smooth:S[i]}); if(r) r.show(); }); })();
+</script></body></html>
